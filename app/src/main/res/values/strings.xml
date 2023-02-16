@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Graduation Project</string>
+    <string-array name="grades">
+        <item>first</item>
+        <item>second</item>
+        <item>third</item>
+        <item>fourth</item>
+        <item>other</item>
+
+    </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>
