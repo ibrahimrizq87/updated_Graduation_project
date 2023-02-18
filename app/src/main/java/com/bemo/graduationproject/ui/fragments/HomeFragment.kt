@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bemo.graduationproject.Classes.Posts
 import com.bemo.graduationproject.R
 import com.bemo.graduationproject.adapters.PostsAdapter
+import com.bemo.graduationproject.viewModel.AuthViewModel
 import com.bemo.graduationproject.viewModel.FirebaseViewModel
 import com.example.uni.data.Resource
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +28,7 @@ class HomeFragment : Fragment() {
 
 val TAG:String="PostsListFragment"
     val viewModel:FirebaseViewModel by viewModels()
+    val authViewModel:AuthViewModel by viewModels()
 lateinit var  adapter : PostsAdapter
 lateinit var postsList:MutableList<Posts>
 
@@ -160,7 +162,11 @@ adapter.update(state.result.toMutableList())
                 }
             }
         }
-
+fun logOut(){
+    authViewModel.logOut {
+        // action here
+    }
+}
 }
     }
 

@@ -9,7 +9,7 @@ fun updateUserInfo(user: User,result:(Resource<String>) ->Unit)
     fun logIn(email:String ,password:String,user: User,result:(Resource<String>) -> Unit)
 //suspend fun signUp(name:String,email:String ,password:String):Resource<FirebaseUser>
     fun Register(email:String ,password:String,user: User,result:(Resource<String>) -> Unit)
-    fun logOut()
+    fun logOut(result:()->Unit)
 
 
 }

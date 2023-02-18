@@ -84,9 +84,7 @@ binding.signUpBt.setOnClickListener {
     val fullName = binding.signName.text.toString()
     if (userImageUri != null){
         if (email.isNotEmpty()&&password.isNotEmpty() &&code.isNotEmpty()&&fullName.isNotEmpty()&&grade.isNotEmpty()){
-            if (password.length == 14 || true ){  // just for testing after tht remove true
-            //creatUser(email,password, fullName, code)
-               // viewModel?.signup(fullName,email, password)
+            if (password.length == 14 || true ){
                 viewModel.Register(email,password,User(
 "",fullName,code.toInt(),password,grade
                 ))
@@ -152,8 +150,7 @@ private fun pickImageFromGallery(){
     startActivityForResult(intent, IMAGE_REQUEST_CODE)
 
 }
-    private fun pickImageFromGalleryAndCrop(){
-    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -193,3 +190,19 @@ private fun createUser(email:String,password:String,fullName:String,code:String)
             }
     }
 }
+/*
+public override fun onStart() {
+        super.onStart()
+        val currentUser = auth.currentUser
+        if(currentUser != null){
+            val id=currentUser.uid
+            val intent =  Intent(this, orderList::class.java).also {
+                it.putExtra("id",id)
+
+            }
+            startActivity( intent)
+
+
+        }
+
+    }*/

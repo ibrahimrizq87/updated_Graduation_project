@@ -80,8 +80,9 @@ updateUserInfo(user){state->
 
     }
 
-    override fun logOut() {
-        TODO("Not yet implemented")
+    override fun logOut(result: () -> Unit) {
+        firebaseAuth.signOut()
+        result.invoke()
     }
 
 

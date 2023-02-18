@@ -29,5 +29,8 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository):
           }
 
     }
+    fun logOut(result:()->Unit){
+        repository.logOut (result)
+    }
 
 }
