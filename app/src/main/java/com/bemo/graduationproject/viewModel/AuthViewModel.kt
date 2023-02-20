@@ -11,25 +11,27 @@ import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(private val repository: AuthRepository):ViewModel() {
 
-    private val _register =MutableLiveData<Resource<String>>()
-    val register:LiveData<Resource<String>>
-    get() = _register
+    private val _register = MutableStateFlow<Resource<String>?>(null)
+    //val register:LiveData<Resource<String>>
+    val register=_register.asStateFlow()
+    //get() = _register
 
 
-    fun Register(email:String,password:String,user: User) {
+    fun Register(email:String,password:String,user: User) = viewModelScope.launch {
       _register.value=Resource.Loading
       repository.Register(email,password,user){
               _register.value=it
           }
 
     }
-    fun logOut(result:()->Unit){
+    fun logOut(result:()->Unit)= viewModelScope.launch {
         repository.logOut (result)
     }
 

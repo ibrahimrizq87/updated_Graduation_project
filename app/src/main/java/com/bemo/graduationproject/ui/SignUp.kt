@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.bemo.graduationproject.Classes.User
 import com.bemo.graduationproject.FirebaseStorageManager
 import com.bemo.graduationproject.R
@@ -21,6 +22,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class SignUp : AppCompatActivity() {
@@ -43,7 +45,7 @@ https://www.youtube.com/watch?v=ATj6tq5HQZU
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var grade: String
-val TAG="SignUp"
+    val TAG="SignUp"
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var userImageUri: Uri
     private lateinit var imageView: ImageView
@@ -88,24 +90,33 @@ binding.signUpBt.setOnClickListener {
                 viewModel.Register(email,password,User(
 "",fullName,code.toInt(),password,grade
                 ))
-                viewModel.register.observe(this) { state ->
-                    when (state) {
-                        is Resource.Loading -> {
-                            prgress.visibility=View.VISIBLE
-                            Log.e(TAG, "Loading")
+                lifecycleScope.launchWhenCreated {
+                    viewModel.register.collectLatest { state ->
+                        when (state) {
+                            is Resource.Loading -> {
+                                prgress.visibility=View.VISIBLE
+                                Log.e(TAG, "Loading")
 
-                        }
-                        is Resource.Success -> {
-                            prgress.visibility=View.INVISIBLE
-                            Toast.makeText(this,state.result,Toast.LENGTH_LONG).show()
-                        }
-                        is Resource.Failure -> {
-                            Log.e(TAG, state.exception.toString())
-                            prgress.visibility=View.INVISIBLE
-                            Toast.makeText(this,state.exception.toString(),Toast.LENGTH_LONG).show()
+                            }
+                            is Resource.Success -> {
+                                prgress.visibility=View.INVISIBLE
+                                Toast.makeText(this@SignUp,state.result,Toast.LENGTH_LONG).show()
+                            }
+                            is Resource.Failure -> {
+                                Log.e(TAG, state.exception.toString())
+                                prgress.visibility=View.INVISIBLE
+                                Toast.makeText(this@SignUp,state.exception.toString(),Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
+
                 }
+
+                val userId = auth.currentUser?.uid
+                if (userId !=null){
+                    FirebaseStorageManager().uploadImage(this,userImageUri, userId)
+                }
+
 
 
             }else{

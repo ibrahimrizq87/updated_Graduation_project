@@ -8,6 +8,7 @@ class User {
     var code :Int? = null
     var nationalId :String? = null
     var grade :String? = null
+    var hasPermission:Boolean?=null
 
     constructor()
     constructor(userId:String?,name :String?,code :Int?,nationalId :String?,grade:String?){

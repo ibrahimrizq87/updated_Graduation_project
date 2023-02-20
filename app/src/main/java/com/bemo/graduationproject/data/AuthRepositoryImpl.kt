@@ -9,6 +9,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AuthRepositoryImpl@Inject constructor(
@@ -18,7 +20,7 @@ class AuthRepositoryImpl@Inject constructor(
     override val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
 
-    override fun updateUserInfo(user: User, result: (Resource<String>) ->Unit ) {
+    override suspend fun updateUserInfo(user: User, result: (Resource<String>) ->Unit ) {
 val document=database.collection(FireStoreTable.users).document()
         user.userId=document.id
         document.set(user)
@@ -36,7 +38,7 @@ val document=database.collection(FireStoreTable.users).document()
             }
     }
 
-    override fun logIn(
+    override suspend fun logIn(
         email: String,
         password: String,
         user: User,
@@ -44,7 +46,7 @@ val document=database.collection(FireStoreTable.users).document()
     ) {
      }
 
-    override fun Register(
+    override suspend fun Register(
         email: String,
         password: String,
         user: User,
@@ -53,14 +55,27 @@ val document=database.collection(FireStoreTable.users).document()
         firebaseAuth.createUserWithEmailAndPassword(email,password)
             .addOnCompleteListener{
                 if (it.isSuccessful){
-updateUserInfo(user){state->
-    when(state){
-        is Resource.Success->{result.invoke(
-            Resource.Success("user created successfully")
-        )}
-        is Resource.Failure->{result.invoke(Resource.Failure(state.exception))}
-    }
-}
+
+                    GlobalScope.launch {
+
+                        updateUserInfo(user){state->
+
+                            when(state){
+
+                                is Resource.Success->{result.invoke(
+
+                                    Resource.Success("user created successfully")
+
+                                )}
+
+                                is Resource.Failure->{result.invoke(Resource.Failure(state.exception))}
+
+                            }
+
+                        }
+
+                    }
+
 
                 }else{
                     result.invoke(
@@ -80,7 +95,7 @@ updateUserInfo(user){state->
 
     }
 
-    override fun logOut(result: () -> Unit) {
+    override suspend fun logOut(result: () -> Unit) {
         firebaseAuth.signOut()
         result.invoke()
     }

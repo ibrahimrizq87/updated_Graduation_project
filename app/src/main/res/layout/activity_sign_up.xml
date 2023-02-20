@@ -38,6 +38,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:hint="college ID"
+        android:inputType="number"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/signName"
         app:layout_constraintVertical_bias="0.048"
@@ -89,7 +90,9 @@
         android:ems="10"
         android:gravity="center"
         android:hint="National ID"
-        android:inputType="textPassword"
+        android:inputType="numberPassword"
+
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.526"

@@ -1,4 +1,5 @@
 package com.bemo.graduationproject.data
+import com.bemo.graduationproject.Classes.CommentClass
 import com.bemo.graduationproject.Classes.DataClass
 import com.bemo.graduationproject.di.FireStoreTable
 import com.example.uni.data.Resource
@@ -7,7 +8,7 @@ import com.google.firebase.database.DatabaseReference
 class FirebaseRealtimeRepoImp (
     val database: DatabaseReference
         ):FirebaseRealtimeRepo{
-    override fun getData(result: (Resource<List<DataClass>>) -> Unit) {
+    override suspend fun getData(result: (Resource<List<DataClass>>) -> Unit) {
         database.child(FireStoreTable.dataCons)
             .get()
             .addOnSuccessListener {
@@ -28,7 +29,7 @@ class FirebaseRealtimeRepoImp (
 
     }
 
-    override fun addData(data: DataClass, result: (Resource<String>) -> Unit) {
+    override suspend fun addData(data: DataClass, result: (Resource<String>) -> Unit) {
    database.child(FireStoreTable.dataCons).setValue(data)
        .addOnSuccessListener {
    result.invoke(
@@ -41,4 +42,8 @@ class FirebaseRealtimeRepoImp (
            )
        }
     }
+
+
+
+
 }

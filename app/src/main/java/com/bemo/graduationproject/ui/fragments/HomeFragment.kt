@@ -12,6 +12,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bemo.graduationproject.Classes.Posts
@@ -21,6 +22,7 @@ import com.bemo.graduationproject.viewModel.AuthViewModel
 import com.bemo.graduationproject.viewModel.FirebaseViewModel
 import com.example.uni.data.Resource
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import java.util.*
 
 @AndroidEntryPoint
@@ -62,21 +64,23 @@ lateinit var postsList:MutableList<Posts>
                 postID =  item.postID,
                 time = Date())
                     )
-        viewModel.updatePost.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is Resource.Loading -> {
-                    progress.visibility=View.VISIBLE
-                    Log.e(TAG, "Loading")
+        lifecycleScope.launchWhenCreated {
+            viewModel.updatePost.collectLatest { state ->
+                when (state) {
+                    is Resource.Loading -> {
+                        progress.visibility=View.VISIBLE
+                        Log.e(TAG, "Loading")
 
-                }
-                is Resource.Success -> {
-                    progress.visibility=View.INVISIBLE
-                    Toast.makeText(context,state.result,Toast.LENGTH_LONG).show()
-                }
-                is Resource.Failure -> {
-                    Log.e(TAG, state.exception.toString())
-                    progress.visibility=View.INVISIBLE
-                    Toast.makeText(context,state.exception.toString(),Toast.LENGTH_LONG).show()
+                    }
+                    is Resource.Success -> {
+                        progress.visibility=View.INVISIBLE
+                        Toast.makeText(context,state.result,Toast.LENGTH_LONG).show()
+                    }
+                    is Resource.Failure -> {
+                        Log.e(TAG, state.exception.toString())
+                        progress.visibility=View.INVISIBLE
+                        Toast.makeText(context,state.exception.toString(),Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
@@ -85,24 +89,27 @@ lateinit var postsList:MutableList<Posts>
     },
     onDeleteClicked = {pos, item->
     viewModel.deletePost(item)
-        viewModel.deletePost.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is Resource.Loading -> {
-                    progress.visibility=View.VISIBLE
-                    Log.e(TAG, "Loading")
+        lifecycleScope.launchWhenCreated {
+            viewModel.deletePost.collectLatest { state ->
+                when (state) {
+                    is Resource.Loading -> {
+                        progress.visibility=View.VISIBLE
+                        Log.e(TAG, "Loading")
 
-                }
-                is Resource.Success -> {
-                    progress.visibility=View.INVISIBLE
-                    Toast.makeText(context,state.result,Toast.LENGTH_LONG).show()
-                }
-                is Resource.Failure -> {
-                    Log.e(TAG, state.exception.toString())
-                    progress.visibility=View.INVISIBLE
-                    Toast.makeText(context,state.exception.toString(),Toast.LENGTH_LONG).show()
+                    }
+                    is Resource.Success -> {
+                        progress.visibility=View.INVISIBLE
+                        Toast.makeText(context,state.result,Toast.LENGTH_LONG).show()
+                    }
+                    is Resource.Failure -> {
+                        Log.e(TAG, state.exception.toString())
+                        progress.visibility=View.INVISIBLE
+                        Toast.makeText(context,state.exception.toString(),Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
+
 
     //Toast.makeText(requireContext(),item.authorName+" Delete",Toast.LENGTH_SHORT).show()
     }
@@ -122,26 +129,30 @@ lateinit var postsList:MutableList<Posts>
 
 
 }
-        viewModel.addPost.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is Resource.Loading -> {
-                    progress.visibility=View.VISIBLE
-                    Log.e(TAG, "Loading")
+        lifecycleScope.launchWhenCreated {
+            viewModel.addPost.collectLatest { state ->
+                when (state) {
+                    is Resource.Loading -> {
+                        progress.visibility=View.VISIBLE
+                        Log.e(TAG, "Loading")
 
-                }
-                is Resource.Success -> {
-                    progress.visibility=View.INVISIBLE
-                    Toast.makeText(context,state.result,Toast.LENGTH_LONG).show()
-                }
-                is Resource.Failure -> {
-                    Log.e(TAG, state.exception.toString())
-                    progress.visibility=View.INVISIBLE
-                    Toast.makeText(context,state.exception.toString(),Toast.LENGTH_LONG).show()
+                    }
+                    is Resource.Success -> {
+                        progress.visibility=View.INVISIBLE
+                        Toast.makeText(context,state.result,Toast.LENGTH_LONG).show()
+                    }
+                    is Resource.Failure -> {
+                        Log.e(TAG, state.exception.toString())
+                        progress.visibility=View.INVISIBLE
+                        Toast.makeText(context,state.exception.toString(),Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
+
    viewModel.getPosts()
-        viewModel.post.observe(viewLifecycleOwner) { state ->
+        lifecycleScope.launchWhenCreated {
+        viewModel.post.collectLatest { state ->
             when (state) {
                 is Resource.Loading -> {
                     progress.visibility=View.VISIBLE
@@ -161,6 +172,7 @@ adapter.update(state.result.toMutableList())
                     Toast.makeText(context,state.exception.toString(),Toast.LENGTH_LONG).show()
                 }
             }
+        }
         }
 fun logOut(){
     authViewModel.logOut {
