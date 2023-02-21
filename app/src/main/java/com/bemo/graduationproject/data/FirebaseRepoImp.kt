@@ -3,6 +3,7 @@ package com.bemo.graduationproject.data
 import com.bemo.graduationproject.Classes.Permission
 import com.bemo.graduationproject.Classes.Posts
 import com.bemo.graduationproject.di.FireStoreTable
+import com.bemo.graduationproject.di.PermissionsRequired
 import com.example.uni.data.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
@@ -111,7 +112,7 @@ result.invoke(
     }
 
     override suspend fun deletePermission(permission: Permission, result: (Resource<String>) -> Unit) {
-        val document=database.collection(FireStoreTable.post).document(permission.permissionId)
+        val document=database.collection(PermissionsRequired.sing_in_permission).document(permission.permissionId)
         document.delete()
             .addOnSuccessListener {
                 result.invoke(
@@ -128,7 +129,7 @@ result.invoke(
     }
 
     override suspend fun addPermission(permission: Permission, result: (Resource<String>) -> Unit) {
-        val document=database.collection(FireStoreTable.post).document()
+        val document=database.collection(PermissionsRequired.sing_in_permission).document()
         permission.permissionId=document.id
         document.set(permission)
             .addOnSuccessListener {

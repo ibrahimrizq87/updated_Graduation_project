@@ -1,11 +1,13 @@
 package com.bemo.graduationproject.data.di
 
+import android.content.SharedPreferences
 import com.bemo.graduationproject.data.*
 import com.example.uni.data.AuthRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,9 +32,11 @@ object RepoModule {
     @Singleton
     fun provideAuthRepo(
         database:FirebaseFirestore,
-        auth:FirebaseAuth
+        auth:FirebaseAuth,
+        appPreferences: SharedPreferences,
+        gson: Gson
     ):AuthRepository {
-        return AuthRepositoryImpl(auth,database)
+        return AuthRepositoryImpl(auth,database,appPreferences,gson)
     }
 
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bemo.graduationproject.Classes.Permission
 import com.bemo.graduationproject.Classes.Posts
 import com.bemo.graduationproject.Room.Repository
 import com.bemo.graduationproject.data.FirebaseRepo
@@ -24,6 +25,8 @@ class FirebaseViewModel @Inject constructor(
     private val _post= MutableStateFlow<Resource<List<Posts>>?>(null)
      val post=_post.asStateFlow()
 
+    private val _addPermission= MutableStateFlow<Resource<String>?>(null)
+    val addPermission=_addPermission.asStateFlow()
 
     private val _addPost=MutableStateFlow<Resource<String>?>(null)
     val addPost=_addPost.asStateFlow()
@@ -44,6 +47,12 @@ class FirebaseViewModel @Inject constructor(
         _addPost.value=Resource.Loading
         repository.addPosts(post){
             _addPost.value=it
+        }
+    }
+    fun addPermission (permission: Permission)= viewModelScope.launch{
+        _addPermission.value=Resource.Loading
+        repository.addPermission(permission){
+            _addPermission.value=it
         }
     }
     fun updatePostF (post:Posts)= viewModelScope.launch{

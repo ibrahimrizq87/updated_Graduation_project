@@ -10,11 +10,16 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.bemo.graduationproject.Classes.Permission
 import com.bemo.graduationproject.Classes.User
 import com.bemo.graduationproject.FirebaseStorageManager
 import com.bemo.graduationproject.R
 import com.bemo.graduationproject.databinding.ActivitySignUpBinding
+import com.bemo.graduationproject.di.PermissionsRequired
+import com.bemo.graduationproject.ui.fragments.HomeFragment
+import com.bemo.graduationproject.ui.fragments.ProfileFragment
 import com.bemo.graduationproject.viewModel.AuthViewModel
+import com.bemo.graduationproject.viewModel.FirebaseViewModel
 import com.example.uni.data.Resource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -26,20 +31,8 @@ import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class SignUp : AppCompatActivity() {
-/*
-https://www.youtube.com/watch?v=ATj6tq5HQZU
-    private val cropActivityResultContent = object:ActivityResultContract<Any?,Uri?>(){
-        override fun createIntent(context: Context, input: Any?): Intent {
-            return Crop
-        }
-
-        override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
-            TODO("Not yet implemented")
-        }
-
-    }
-  */
     private val viewModel :AuthViewModel by viewModels()
+    private val firebaseViewModel :FirebaseViewModel by viewModels()
 
 
     private lateinit var auth: FirebaseAuth
@@ -57,9 +50,9 @@ companion object{
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
-grade=""
+        grade=""
         auth = Firebase.auth
-val prgress=binding.progressBarSignIn
+        val prgress=binding.progressBarSignIn
         database = Firebase.database.reference
 
         imageView = binding.signUserImage
@@ -101,6 +94,14 @@ binding.signUpBt.setOnClickListener {
                             is Resource.Success -> {
                                 prgress.visibility=View.INVISIBLE
                                 Toast.makeText(this@SignUp,state.result,Toast.LENGTH_LONG).show()
+                                val userId = auth.currentUser?.uid
+                                if (userId !=null){
+                                    firebaseViewModel.addPermission(Permission(PermissionsRequired.sing_in_permission,userId,""))
+                                    observe()
+                                    FirebaseStorageManager().uploadImage(this@SignUp,userImageUri, userId)
+                                }
+
+                                startActivity(Intent(this@SignUp,HomeScreen::class.java))
                             }
                             is Resource.Failure -> {
                                 Log.e(TAG, state.exception.toString())
@@ -112,10 +113,7 @@ binding.signUpBt.setOnClickListener {
 
                 }
 
-                val userId = auth.currentUser?.uid
-                if (userId !=null){
-                    FirebaseStorageManager().uploadImage(this,userImageUri, userId)
-                }
+
 
 
 
@@ -133,26 +131,6 @@ binding.signUpBt.setOnClickListener {
     }
 }
 
-  /*
-  ------------------------------------->
-  signUpFlow?.value?.let {
-        when(it){
-            is Resource.Failure -> {
-                Toast.makeText(this,it.exception.message,Toast.LENGTH_SHORT).show()
-
-            }
-            Resource.Loading -> {
-                Toast.makeText(this,"loading",Toast.LENGTH_SHORT).show()
-            }
-            is Resource.Success ->{
-
-                startActivity(Intent(this,HomeScreen::class.java))
-            }
-
-
-
-        }
-    }*/
 
     }
 private fun pickImageFromGallery(){
@@ -200,7 +178,37 @@ private fun createUser(email:String,password:String,fullName:String,code:String)
                 Toast.makeText(this,it.toString(), Toast.LENGTH_LONG).show()
             }
     }
+    private fun observe(){
+        lifecycleScope.launchWhenCreated {
+            firebaseViewModel.addPermission.collectLatest {
+                when (it) {
+                    is Resource.Loading -> {
+                    }
+                    is Resource.Success -> {
+                        Toast.makeText(this@SignUp,it.result,Toast.LENGTH_LONG).show()
+                        startActivity(Intent(this@SignUp,HomeScreen::class.java))
+                    }
+                    is Resource.Failure -> {
+                        Log.e(TAG, it.exception.toString())
+                        Toast.makeText(this@SignUp,it.exception.toString(),Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+            viewModel.getSession { user->
+                if (user!=null){
+                    startActivity(Intent(this,HomeScreen::class.java))
+                }
+            }
+    }
 }
+
 /*
 public override fun onStart() {
         super.onStart()

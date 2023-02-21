@@ -34,5 +34,7 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository):
     fun logOut(result:()->Unit)= viewModelScope.launch {
         repository.logOut (result)
     }
-
+fun getSession(result: (User?) -> Unit){
+    repository.getSession(result)
+}
 }
