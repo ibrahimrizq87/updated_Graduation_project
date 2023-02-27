@@ -10,7 +10,7 @@ data class Section (
     val courseCode:String,
     val hallID:String,
     val assistantID:String,
-    val grade : String,
+    val section : String,
     val sectionId : String,
     val time:String,
     val endTime:String

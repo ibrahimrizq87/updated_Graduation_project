@@ -8,16 +8,13 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bemo.graduationproject.Classes.Permission
-import com.bemo.graduationproject.Classes.User
+import com.bemo.graduationproject.Classes.user.UserStudent
 import com.bemo.graduationproject.FirebaseStorageManager
 import com.bemo.graduationproject.R
 import com.bemo.graduationproject.databinding.ActivitySignUpBinding
 import com.bemo.graduationproject.di.PermissionsRequired
-import com.bemo.graduationproject.ui.fragments.HomeFragment
-import com.bemo.graduationproject.ui.fragments.ProfileFragment
 import com.bemo.graduationproject.viewModel.AuthViewModel
 import com.bemo.graduationproject.viewModel.FirebaseViewModel
 import com.example.uni.data.Resource
@@ -80,9 +77,10 @@ binding.signUpBt.setOnClickListener {
     if (userImageUri != null){
         if (email.isNotEmpty()&&password.isNotEmpty() &&code.isNotEmpty()&&fullName.isNotEmpty()&&grade.isNotEmpty()){
             if (password.length == 14 || true ){
-                viewModel.Register(email,password,User(
-"",fullName,code.toInt(),password,grade
-                ))
+                viewModel.Register(email,password, UserStudent(
+"",fullName,code,password,grade
+                )
+                )
                 lifecycleScope.launchWhenCreated {
                     viewModel.register.collectLatest { state ->
                         when (state) {
@@ -159,7 +157,7 @@ private fun createUser(email:String,password:String,fullName:String,code:String)
 
                 if (userId !=null){
                     FirebaseStorageManager().uploadImage(this,userImageUri, userId)
-                    addUserData(userId,fullName,code.toInt(),password,grade)
+                    addUserData(userId,fullName,code,password,grade)
                     startActivity(Intent(this,HomeScreen::class.java))
 
                 }
@@ -170,8 +168,8 @@ private fun createUser(email:String,password:String,fullName:String,code:String)
             }
         }
 }
-    private fun addUserData( userId:String,userName:String,code:Int,nationalId:String,grade:String){
-        database.child("Users").child(userId).setValue(User(userId,userName,code,nationalId,grade))
+    private fun addUserData( userId:String,userName:String,code:String,nationalId:String,grade:String){
+        database.child("Users").child(userId).setValue(UserStudent(userId,userName,code,nationalId,grade))
             .addOnSuccessListener {
                 Toast.makeText(this,"data pushed", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener{

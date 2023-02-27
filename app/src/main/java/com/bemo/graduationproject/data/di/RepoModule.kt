@@ -1,6 +1,7 @@
 package com.bemo.graduationproject.data.di
 
 import android.content.SharedPreferences
+import com.bemo.graduationproject.Room.Repository
 import com.bemo.graduationproject.data.*
 import com.example.uni.data.AuthRepository
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -21,9 +22,10 @@ object RepoModule {
     @Provides
     @Singleton
     fun provideFirebaseRepo(
-         database:FirebaseFirestore
+         database:FirebaseFirestore,
+         //roomRepository:Repository
     ):FirebaseRepo {
-        return FirebaseRepoImp(database)
+        return FirebaseRepoImp(database)//,roomRepository)
     }
 
 

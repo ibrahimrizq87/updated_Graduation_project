@@ -4,12 +4,14 @@ import com.bemo.graduationproject.Classes.DataClass
 import com.bemo.graduationproject.di.FireStoreTable
 import com.example.uni.data.Resource
 import com.google.firebase.database.DatabaseReference
+import javax.inject.Inject
 
-class FirebaseRealtimeRepoImp (
+class FirebaseRealtimeRepoImp @Inject constructor(
     val database: DatabaseReference
         ):FirebaseRealtimeRepo{
+
     override suspend fun getData(result: (Resource<List<DataClass>>) -> Unit) {
-        database.child(FireStoreTable.dataCons)
+        database.child("data")
             .get()
             .addOnSuccessListener {
                 val listOfData= arrayListOf<DataClass>()
@@ -30,7 +32,7 @@ class FirebaseRealtimeRepoImp (
     }
 
     override suspend fun addData(data: DataClass, result: (Resource<String>) -> Unit) {
-   database.child(FireStoreTable.dataCons).setValue(data)
+   database.child("data").setValue(data)
        .addOnSuccessListener {
    result.invoke(
        Resource.Success("data sent successfully")

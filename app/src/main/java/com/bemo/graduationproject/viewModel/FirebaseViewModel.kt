@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bemo.graduationproject.Classes.Permission
 import com.bemo.graduationproject.Classes.Posts
+import com.bemo.graduationproject.Room.Entities.Courses
+import com.bemo.graduationproject.Room.Entities.Section
 import com.bemo.graduationproject.Room.Repository
 import com.bemo.graduationproject.data.FirebaseRepo
 import com.example.uni.data.Resource
@@ -24,6 +26,12 @@ class FirebaseViewModel @Inject constructor(
 
     private val _post= MutableStateFlow<Resource<List<Posts>>?>(null)
      val post=_post.asStateFlow()
+
+    private val _addCourse= MutableStateFlow<Resource<String>?>(null)
+    val addCourse=_addCourse.asStateFlow()
+
+    private val _addSection= MutableStateFlow<Resource<String>?>(null)
+    val addSection=_addSection.asStateFlow()
 
     private val _addPermission= MutableStateFlow<Resource<String>?>(null)
     val addPermission=_addPermission.asStateFlow()
@@ -47,6 +55,19 @@ class FirebaseViewModel @Inject constructor(
         _addPost.value=Resource.Loading
         repository.addPosts(post){
             _addPost.value=it
+        }
+    }
+    fun addCourse (course: Courses)= viewModelScope.launch{
+        _addCourse.value=Resource.Loading
+        repository.updateCourse(course){
+            _addCourse.value=it
+        }
+    }
+
+    fun addSection (section: Section)= viewModelScope.launch{
+        _addSection.value=Resource.Loading
+        repository.updateSection(section){
+            _addSection.value=it
         }
     }
     fun addPermission (permission: Permission)= viewModelScope.launch{

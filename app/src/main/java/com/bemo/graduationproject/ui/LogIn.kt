@@ -11,10 +11,9 @@ import com.bemo.graduationproject.databinding.ActivityLogInBinding
 class LogIn : AppCompatActivity() {
     private lateinit var binding:ActivityLogInBinding
     /*private lateinit var email:EditText
-
-    private lateinit var password:EditText
-    private lateinit var logInBt:Button
-    private lateinit var signUpText:TextView
+     private lateinit var password:EditText
+     private lateinit var logInBt:Button
+     private lateinit var signUpText:TextView
     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

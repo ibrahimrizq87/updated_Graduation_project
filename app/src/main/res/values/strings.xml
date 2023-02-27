@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">Graduation Project</string>
     <string-array name="grades">
-        <item>first</item>
-        <item>second</item>
-        <item>third</item>
-        <item>fourth</item>
-        <item>other</item>
+        <item>grade one</item>
+        <item>grade two</item>
+        <item>grade three</item>
+        <item>grade four</item>
+        <!-- <item>other</item> -->
 
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->

@@ -1,5 +1,8 @@
 package com.bemo.graduationproject.data.di
 
+import com.bemo.graduationproject.Room.AppDatabase
+import com.bemo.graduationproject.Room.DatabaseDao
+import com.bemo.graduationproject.Room.Repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -20,6 +23,8 @@ object FirebaseModule {
 fun provideFireStoreInstant():FirebaseFirestore{
     return FirebaseFirestore.getInstance()
 }
+
+
 
     @Provides
     @Singleton

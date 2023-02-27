@@ -1,16 +1,12 @@
 package com.bemo.graduationproject.viewModel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bemo.graduationproject.Classes.User
+import com.bemo.graduationproject.Classes.user.UserStudent
 import com.example.uni.data.AuthRepository
 import com.example.uni.data.Resource
-import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,9 +20,9 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository):
     //get() = _register
 
 
-    fun Register(email:String,password:String,user: User) = viewModelScope.launch {
+    fun Register(email:String, password:String, userStudent: UserStudent) = viewModelScope.launch {
       _register.value=Resource.Loading
-      repository.Register(email,password,user){
+      repository.register(email,password,userStudent){
               _register.value=it
           }
 
@@ -34,7 +30,7 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository):
     fun logOut(result:()->Unit)= viewModelScope.launch {
         repository.logOut (result)
     }
-fun getSession(result: (User?) -> Unit){
+fun getSession(result: (UserStudent?) -> Unit){
     repository.getSession(result)
 }
 }

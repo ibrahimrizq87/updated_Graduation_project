@@ -9,3 +9,5 @@ data class Posts (
     val time: Date= Date()
 
         )
+
+// variable -> how can see?
