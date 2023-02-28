@@ -1,4 +1,4 @@
-package com.bemo.graduationproject.ui.fragments
+package com.bemo.graduationproject.ui.userPakage.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,22 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import com.bemo.graduationproject.R
 
-
-class PermissionsFragment : Fragment() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
-    }
-
+class NotificationsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        return inflater.inflate(R.layout.fragment_permissions, container, false)
+        return inflater.inflate(R.layout.fragment_notifications, container, false)
     }
 
-    }
+}
+// replaced by the home screen

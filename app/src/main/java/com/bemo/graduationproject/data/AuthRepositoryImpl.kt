@@ -2,10 +2,10 @@ package com.bemo.graduationproject.data
 
 import android.content.SharedPreferences
 import com.bemo.graduationproject.Classes.Permission
-import com.bemo.graduationproject.Classes.user.UserStudent
-import com.bemo.graduationproject.di.FireStoreTable
+import com.bemo.graduationproject.Classes.user.*
 import com.bemo.graduationproject.di.PermissionsRequired
 import com.bemo.graduationproject.di.SharedPreferencesTable
+import com.bemo.graduationproject.di.UserTypes
 import com.example.uni.data.AuthRepository
 import com.example.uni.data.Resource
 import com.google.firebase.auth.FirebaseAuth
@@ -25,9 +25,9 @@ class AuthRepositoryImpl@Inject constructor(
     override val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
 
-    override suspend fun updateUserInfo(userStudent: UserStudent, result: (Resource<String>) ->Unit ) {
-val document=database.collection(FireStoreTable.users).document(userStudent.userId)
-
+    override suspend fun updateUserInfo(userStudent: Users, result: (Resource<String>) ->Unit ) {
+        val type =userStudent.userType
+        val document=database.collection(UserTypes.user).document(type).collection(UserTypes.user).document(userStudent.userId)
         document.set(userStudent)
             .addOnSuccessListener {
                 result.invoke(
@@ -53,7 +53,7 @@ val document=database.collection(FireStoreTable.users).document(userStudent.user
     override suspend fun register(
         email: String,
         password: String,
-        userStudent: UserStudent,
+        userStudent: Users,
         result: (Resource<String>) -> Unit
     ) {
         firebaseAuth.createUserWithEmailAndPassword(email,password)
@@ -65,7 +65,8 @@ val document=database.collection(FireStoreTable.users).document(userStudent.user
                         updateUserInfo(userStudent){ state->
                             when(state){
                                 is Resource.Success->{
-                                storeSession(it.result.user?.uid?:""){
+                                    setUserType(userStudent.userType)
+                                storeSession(it.result.user?.uid?:"",userStudent.userType){
                                     if (userStudent==null){
                                         result.invoke(Resource.Failure("user created successfully but session did not stored"))
                                     }else{
@@ -76,7 +77,7 @@ val document=database.collection(FireStoreTable.users).document(userStudent.user
                                 is Resource.Failure->{result.invoke(Resource.Failure(state.exception))}
                             }
                         }
-                        val permission=Permission(PermissionsRequired.sing_in_permission, userStudent.userId,"")
+                        //val permission=Permission(PermissionsRequired.sing_in_permission, userStudent.userId,"")
 
 
                     }
@@ -102,6 +103,7 @@ val document=database.collection(FireStoreTable.users).document(userStudent.user
         firebaseAuth.signOut()
         result.invoke()
         appPreferences.edit().putString(SharedPreferencesTable.user_session,null).apply()
+        appPreferences.edit().putString(SharedPreferencesTable.userType,null).apply()
     }
 
 
@@ -136,14 +138,59 @@ val document=database.collection(FireStoreTable.users).document(userStudent.user
      override fun logOut() {
          firebaseAuth.signOut()
      }*/
-    override fun storeSession(id :String,result :(UserStudent?)-> Unit){
-        database.collection(FireStoreTable.users).document(id)
+    override fun setSession(user:Users) {
+        appPreferences.edit().putString(SharedPreferencesTable.user_session,gson.toJson(user)).apply()
+    }
+
+    override fun getUserType(): String? {
+        val user_str = appPreferences.getString(SharedPreferencesTable.userType,null)
+        if (user_str==null){
+            return null
+        }
+        return user_str
+
+    }
+    override fun setUserType(userType:String) {
+        appPreferences.edit().putString(SharedPreferencesTable.userType,userType).apply()
+    }
+    override fun storeSession(id :String,userType:String,result :(Users?)-> Unit){
+        database.collection(UserTypes.user).document(userType).collection(UserTypes.user).document(id)
             .get()
             .addOnCompleteListener {
                 if (it.isSuccessful){
-                    val userStudent= it.result.toObject(UserStudent::class.java)
-                    appPreferences.edit().putString(SharedPreferencesTable.user_session,gson.toJson(userStudent)).apply()
-                    result.invoke(userStudent)
+                 when(userType){
+                        UserTypes.studentUser->{
+                            val userStudent= it.result.toObject(UserStudent::class.java)
+                            if (userStudent != null) {
+                                setSession(userStudent)
+                            }
+                            result.invoke(userStudent)
+                        }
+                        UserTypes.adminUser->{
+                            val userStudent= it.result.toObject(UserStudent::class.java)
+                            if (userStudent != null) {
+                                setSession(userStudent)
+                            }
+                            result.invoke(userStudent)
+                        }
+                        UserTypes.assistantUser->{
+                            val userStudent= it.result.toObject(UserStudent::class.java)
+                            if (userStudent != null) {
+                                setSession(userStudent)
+                            }
+                            result.invoke(userStudent)
+                        }
+                        UserTypes.professorUser->{
+                            val userStudent= it.result.toObject(UserStudent::class.java)
+                            if (userStudent != null) {
+                                setSession(userStudent)
+                            }
+                            result.invoke(userStudent)
+                        }
+                    }
+
+
+
                 }else{
                     result.invoke(null)
                 }
@@ -153,7 +200,34 @@ val document=database.collection(FireStoreTable.users).document(userStudent.user
             }
     }
 
-    override fun getSession(result: (UserStudent?) -> Unit) {
+    override fun getSessionAssistant(result: (UserAssistant?) -> Unit) {
+        val user_str = appPreferences.getString(SharedPreferencesTable.user_session,null)
+        if (user_str==null){
+            result.invoke(null)
+        }else{
+            val userStudent = gson.fromJson(user_str, UserAssistant::class.java)
+            result.invoke(userStudent)
+        }
+    }
+    override fun getSessionAdmin(result: (UserAdmin?) -> Unit) {
+        val user_str = appPreferences.getString(SharedPreferencesTable.user_session,null)
+        if (user_str==null){
+            result.invoke(null)
+        }else{
+            val userStudent = gson.fromJson(user_str, UserAdmin::class.java)
+            result.invoke(userStudent)
+        }
+    }
+    override fun getSessionProfessor(result: (UserProfessor?) -> Unit) {
+        val user_str = appPreferences.getString(SharedPreferencesTable.user_session,null)
+        if (user_str==null){
+            result.invoke(null)
+        }else{
+            val userStudent = gson.fromJson(user_str, UserProfessor::class.java)
+            result.invoke(userStudent)
+        }
+    }
+    override fun getSessionStudent(result: (UserStudent?) -> Unit) {
         val user_str = appPreferences.getString(SharedPreferencesTable.user_session,null)
         if (user_str==null){
             result.invoke(null)
@@ -179,5 +253,49 @@ val document=database.collection(FireStoreTable.users).document(userStudent.user
                 )
             }
 
+    }
+    override  suspend fun getUserStudent(id :String,result:(Resource<UserStudent?>) -> Unit) {
+
+        val docRef =  database.collection(UserTypes.user).document(UserTypes.studentUser).collection(UserTypes.user).document(id)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                result.invoke(Resource.Failure(e.toString()))
+                return@addSnapshotListener
+            }
+            result.invoke(Resource.Success(snapshot?.toObject(UserStudent::class.java)))
+        }
+    }
+    override  suspend fun getUserProfessor(id :String,result:(Resource<UserProfessor?>) -> Unit) {
+
+        val docRef =  database.collection(UserTypes.user).document(UserTypes.professorUser).collection(UserTypes.user).document(id)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                result.invoke(Resource.Failure(e.toString()))
+                return@addSnapshotListener
+            }
+            result.invoke(Resource.Success(snapshot?.toObject(UserProfessor::class.java)))
+        }
+    }
+    override  suspend fun getUserAssistant(id :String,result:(Resource<UserAssistant?>) -> Unit) {
+
+        val docRef =  database.collection(UserTypes.user).document(UserTypes.assistantUser).collection(UserTypes.user).document(id)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                result.invoke(Resource.Failure(e.toString()))
+                return@addSnapshotListener
+            }
+            result.invoke(Resource.Success(snapshot?.toObject(UserAssistant::class.java)))
+        }
+    }
+    override  suspend fun getUserAdmin(id :String,result:(Resource<UserAdmin?>) -> Unit) {
+
+        val docRef =  database.collection(UserTypes.user).document(UserTypes.adminUser).collection(UserTypes.user).document(id)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                result.invoke(Resource.Failure(e.toString()))
+                return@addSnapshotListener
+            }
+            result.invoke(Resource.Success(snapshot?.toObject(UserAdmin::class.java)))
+        }
     }
 }

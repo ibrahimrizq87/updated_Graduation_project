@@ -1,4 +1,4 @@
-package com.bemo.graduationproject.ui.fragments
+package com.bemo.graduationproject.ui.userPakage.fragments
 
 import android.os.Bundle
 import android.util.Log

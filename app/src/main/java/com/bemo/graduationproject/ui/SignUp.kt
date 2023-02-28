@@ -11,10 +11,16 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bemo.graduationproject.Classes.Permission
 import com.bemo.graduationproject.Classes.user.UserStudent
+import com.bemo.graduationproject.Classes.user.Users
 import com.bemo.graduationproject.FirebaseStorageManager
 import com.bemo.graduationproject.R
 import com.bemo.graduationproject.databinding.ActivitySignUpBinding
 import com.bemo.graduationproject.di.PermissionsRequired
+import com.bemo.graduationproject.di.UserTypes
+import com.bemo.graduationproject.di.grades
+import com.bemo.graduationproject.ui.adminPakage.AdminHomeScreen
+import com.bemo.graduationproject.ui.teachingPakage.TeachingHomeScreen
+import com.bemo.graduationproject.ui.userPakage.HomeScreen
 import com.bemo.graduationproject.viewModel.AuthViewModel
 import com.bemo.graduationproject.viewModel.FirebaseViewModel
 import com.example.uni.data.Resource
@@ -48,6 +54,7 @@ companion object{
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
         grade=""
+        userImageUri= Uri.EMPTY
         auth = Firebase.auth
         val prgress=binding.progressBarSignIn
         database = Firebase.database.reference
@@ -78,7 +85,7 @@ binding.signUpBt.setOnClickListener {
         if (email.isNotEmpty()&&password.isNotEmpty() &&code.isNotEmpty()&&fullName.isNotEmpty()&&grade.isNotEmpty()){
             if (password.length == 14 || true ){
                 viewModel.Register(email,password, UserStudent(
-"",fullName,code,password,grade
+                    fullName,"",code,password,grade,""
                 )
                 )
                 lifecycleScope.launchWhenCreated {
@@ -94,12 +101,12 @@ binding.signUpBt.setOnClickListener {
                                 Toast.makeText(this@SignUp,state.result,Toast.LENGTH_LONG).show()
                                 val userId = auth.currentUser?.uid
                                 if (userId !=null){
-                                    firebaseViewModel.addPermission(Permission(PermissionsRequired.sing_in_permission,userId,""))
+                                   firebaseViewModel.addPermission(Permission(PermissionsRequired.sing_in_permission,userId,""))
                                     observe()
                                     FirebaseStorageManager().uploadImage(this@SignUp,userImageUri, userId)
                                 }
 
-                                startActivity(Intent(this@SignUp,HomeScreen::class.java))
+                                startActivity(Intent(this@SignUp, HomeScreen::class.java))
                             }
                             is Resource.Failure -> {
                                 Log.e(TAG, state.exception.toString())
@@ -110,11 +117,6 @@ binding.signUpBt.setOnClickListener {
                     }
 
                 }
-
-
-
-
-
             }else{
     Toast.makeText(this,"make sure to write the 14 number of the national id",Toast.LENGTH_SHORT).show()
 
@@ -128,8 +130,6 @@ binding.signUpBt.setOnClickListener {
 
     }
 }
-
-
     }
 private fun pickImageFromGallery(){
     val intent = Intent (Intent.ACTION_PICK)
@@ -158,7 +158,7 @@ private fun createUser(email:String,password:String,fullName:String,code:String)
                 if (userId !=null){
                     FirebaseStorageManager().uploadImage(this,userImageUri, userId)
                     addUserData(userId,fullName,code,password,grade)
-                    startActivity(Intent(this,HomeScreen::class.java))
+                    startActivity(Intent(this, HomeScreen::class.java))
 
                 }
 
@@ -184,7 +184,7 @@ private fun createUser(email:String,password:String,fullName:String,code:String)
                     }
                     is Resource.Success -> {
                         Toast.makeText(this@SignUp,it.result,Toast.LENGTH_LONG).show()
-                        startActivity(Intent(this@SignUp,HomeScreen::class.java))
+                        startActivity(Intent(this@SignUp, HomeScreen::class.java))
                     }
                     is Resource.Failure -> {
                         Log.e(TAG, it.exception.toString())
@@ -198,12 +198,28 @@ private fun createUser(email:String,password:String,fullName:String,code:String)
 
     override fun onStart() {
         super.onStart()
+val userType=viewModel.getUserType()
 
-            viewModel.getSession { user->
-                if (user!=null){
-                    startActivity(Intent(this,HomeScreen::class.java))
+                if (userType!=null){
+                    when(userType){
+                        UserTypes.studentUser->{
+                            startActivity(Intent(this, HomeScreen::class.java))
+                        }
+                        UserTypes.adminUser->{
+                            startActivity(Intent(this, AdminHomeScreen::class.java))
+                        }
+                        UserTypes.assistantUser->{
+                            startActivity(Intent(this, TeachingHomeScreen::class.java))
+                        }
+                        UserTypes.professorUser->{
+                            startActivity(Intent(this, TeachingHomeScreen::class.java))
+                        }
+
+                    }
+
                 }
-            }
+
+
     }
 }
 
