@@ -10,7 +10,6 @@ data class Assistant (
     @PrimaryKey(autoGenerate = false)
      var name: String,
      val code: String,
-     val Specialization:String,
-    val sections:List<String>
+     val Specialization:String
 
 )

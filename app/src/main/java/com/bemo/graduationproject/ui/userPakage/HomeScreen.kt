@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.bemo.graduationproject.Classes.AttendanceEmbedded
 import com.bemo.graduationproject.Classes.user.UserStudent
 import com.bemo.graduationproject.R
 import com.bemo.graduationproject.databinding.ActivityHomeScreenBinding
@@ -15,6 +16,7 @@ import com.bemo.graduationproject.ui.SignUp
 import com.bemo.graduationproject.ui.userPakage.fragments.*
 
 import com.bemo.graduationproject.viewModel.AuthViewModel
+import com.bemo.graduationproject.viewModel.FirebaseRealtimeModelView
 import com.example.uni.data.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,6 +27,7 @@ class HomeScreen : AppCompatActivity() {
 lateinit var database:FirebaseFirestore
     private lateinit var binding: ActivityHomeScreenBinding
     private val viewModel : AuthViewModel by viewModels()
+    private val realTime:FirebaseRealtimeModelView by  viewModels()
 // firebase -- > room  list courses
     /*
     // courses
@@ -38,7 +41,6 @@ lateinit var database:FirebaseFirestore
         binding = ActivityHomeScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.bottomNavigationView.setOnItemSelectedListener {
-            database=FirebaseFirestore.getInstance()
 
     when(it.itemId){
         R.id.home -> replaceFragment(HomeFragment())
@@ -105,7 +107,25 @@ fun updateUser(user: UserStudent){
         }
         }
     fun click(view: View) {
-        replaceFragment(ScheduleFragment())
+        //replaceFragment(ScheduleFragment())
+        database=FirebaseFirestore.getInstance()
+        realTime.updateHallState(AttendanceEmbedded("AAA111",true))
+        lifecycleScope.launchWhenCreated {
+            realTime.updateHallState.collectLatest {stat->
+                when (stat) {
+                    is Resource.Loading -> {
+                    }
+                    is Resource.Success -> {
+
+                        Toast.makeText(this@HomeScreen, "dddddone", Toast.LENGTH_LONG).show()
+                    }
+
+                    is Resource.Failure -> {
+                        Toast.makeText(this@HomeScreen,stat.exception.toString(),Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
     }
 }
 

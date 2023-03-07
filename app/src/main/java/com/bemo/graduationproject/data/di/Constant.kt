@@ -7,6 +7,7 @@ object FireStoreTable {
     val sections ="sections"
     val professor="professor"
     val assistant="assistan"
+    val attendance="attendance"
 }
 object UserTypes{
     val user="Users"
@@ -30,4 +31,8 @@ object grades{
     val secondGrade= "grade two"
     val thirdGrade= "grade three"
     val fourthGrade= "grade four"
+}
+object RealTime{
+    val hall="hall"
+    val lab="lab"
 }

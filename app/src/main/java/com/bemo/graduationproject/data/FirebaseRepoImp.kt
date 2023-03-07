@@ -1,19 +1,15 @@
 package com.bemo.graduationproject.data
 
-import android.util.Log
+import com.bemo.graduationproject.Classes.Attendance
 import com.bemo.graduationproject.Classes.Permission
 import com.bemo.graduationproject.Classes.Posts
-import com.bemo.graduationproject.Classes.user.Users
 import com.bemo.graduationproject.Room.Entities.*
-import com.bemo.graduationproject.Room.Repository
 import com.bemo.graduationproject.di.FireStoreTable
 import com.bemo.graduationproject.di.PermissionsRequired
 import com.example.uni.data.Resource
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 class FirebaseRepoImp@Inject constructor(
@@ -58,8 +54,6 @@ val post = document.toObject(Posts::class.java)
       }
 
 */}
-
-
     override suspend fun addPosts(posts: Posts, result: (Resource<String>) -> Unit) {
 val document=database.collection(FireStoreTable.post).document()
 posts.postID=document.id
@@ -77,7 +71,6 @@ result.invoke(
         )
     }
     }
-
     override suspend fun updatePosts(posts: Posts, result: (Resource<String>) -> Unit) {
         val document=database.collection(FireStoreTable.post).document(posts.postID)
       document.set(posts)
@@ -94,9 +87,6 @@ result.invoke(
                 )
             }
     }
-
-
-
     override suspend fun deletePosts(posts: Posts, result: (Resource<String>) -> Unit) {
         val document=database.collection(FireStoreTable.post).document(posts.postID)
         document.delete()
@@ -114,7 +104,6 @@ result.invoke(
             }
 
     }
-
     override suspend fun deletePermission(permission: Permission, result: (Resource<String>) -> Unit) {
         val document=database.collection(PermissionsRequired.sing_in_permission).document(permission.permissionId)
         document.delete()
@@ -131,8 +120,6 @@ result.invoke(
                 )
             }
     }
-
-
     override suspend fun updateCourse(courses: Courses,professor: Professor,assistant: Assistant, result: (Resource<String>) -> Unit) {
         var str=""
         val document=database.collection(FireStoreTable.courses).document(courses.courseCode)
@@ -160,7 +147,6 @@ result.invoke(
                 )
             }
     }
-
     override suspend fun updateSection(section: Section, result: (Resource<String>) -> Unit) {
         val document=database.collection(FireStoreTable.courses).document(section.courseCode)
             .collection(FireStoreTable.sections).document()
@@ -177,6 +163,74 @@ result.invoke(
                     )
                 )
             }
+    }
+    override suspend fun updateSectionAttendance(attendance: Attendance,sectionId: String, result: (Resource<String>) -> Unit) {
+        val document=database.collection(FireStoreTable.attendance).document(FireStoreTable.sections)
+            .collection(sectionId)
+            //.collection(sectionId).document() //document.set(attendance)
+        document.add(attendance)
+            .addOnSuccessListener {
+                result.invoke(
+                    Resource.Success("attendance added successfully")
+                )
+            }
+            .addOnFailureListener{
+                result.invoke(
+                    Resource.Failure(
+                        it.localizedMessage
+                    )
+                )
+            }
+    }
+    override suspend fun updateLectureAttendance(attendance: Attendance,lectureId: String, result: (Resource<String>) -> Unit) {
+        val document=database.collection(FireStoreTable.attendance).document(FireStoreTable.lectures)
+            .collection(lectureId)
+        //.collection(sectionId).document() //document.set(attendance)
+        document.add(attendance)
+            .addOnSuccessListener {
+                result.invoke(
+                    Resource.Success("attendance added successfully")
+                )
+            }
+            .addOnFailureListener{
+                result.invoke(
+                    Resource.Failure(
+                        it.localizedMessage
+                    )
+                )
+            }
+    }
+    override suspend fun getLectureAttendance( lectureId: String,result: (Resource<List<Attendance>>) -> Unit) {
+        val docRef = database.collection(FireStoreTable.attendance).document(FireStoreTable.lectures).collection(lectureId)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                result.invoke(Resource.Failure(e.toString()))
+                return@addSnapshotListener
+            }
+
+            val listOfPosts= arrayListOf<Attendance>()
+            for (rec in snapshot!!){
+                val post = rec.toObject(Attendance::class.java)
+                listOfPosts.add(post)
+            }
+            result.invoke(Resource.Success(listOfPosts))
+        }
+    }
+    override suspend fun getSectionAttendance( sectionId: String,result: (Resource<List<Attendance>>) -> Unit) {
+        val docRef = database.collection(FireStoreTable.attendance).document(FireStoreTable.sections).collection(sectionId)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                result.invoke(Resource.Failure(e.toString()))
+                return@addSnapshotListener
+            }
+
+            val listOfPosts= arrayListOf<Attendance>()
+            for (rec in snapshot!!){
+                val post = rec.toObject(Attendance::class.java)
+                listOfPosts.add(post)
+            }
+            result.invoke(Resource.Success(listOfPosts))
+        }
     }
     override suspend fun updateProfessor(professor: Professor,courseId:String, result: (Resource<String>) -> Unit) {
         val document=database.collection(FireStoreTable.courses).document(courseId)
@@ -247,6 +301,40 @@ result.invoke(
             result.invoke(Resource.Success(listOfPosts))
         }
     }
+    override suspend fun getCourseByProfessorCode( professorCode:String,result: (Resource<List<Courses>>) -> Unit) {
+        val docRef = database.collection(FireStoreTable.courses)
+            .whereEqualTo("professor", professorCode)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                result.invoke(Resource.Failure(e.toString()))
+                return@addSnapshotListener
+            }
+
+            val listOfPosts= arrayListOf<Courses>()
+            for (rec in snapshot!!){
+                val post = rec.toObject(Courses::class.java)
+                listOfPosts.add(post)
+            }
+            result.invoke(Resource.Success(listOfPosts))
+        }
+    }
+    override suspend fun getCourseByAssistantCode( assistantCode:String,result: (Resource<List<Courses>>) -> Unit) {
+        val docRef = database.collection(FireStoreTable.courses)
+            .whereEqualTo("learningAssistant", assistantCode)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                result.invoke(Resource.Failure(e.toString()))
+                return@addSnapshotListener
+            }
+
+            val listOfPosts= arrayListOf<Courses>()
+            for (rec in snapshot!!){
+                val post = rec.toObject(Courses::class.java)
+                listOfPosts.add(post)
+            }
+            result.invoke(Resource.Success(listOfPosts))
+        }
+    }
     override suspend fun getLectures(courses: List<Courses>, result: (Resource<List<Lecture>>) -> Unit) {
         val listOfPosts= arrayListOf<Lecture>()
         for(course in courses){
@@ -266,7 +354,6 @@ result.invoke(
     }
         result.invoke(Resource.Success(listOfPosts))
     }
-
     override suspend fun getSection(courses: List<Courses>, result: (Resource<List<Section>>) -> Unit) {
         val listOfPosts= arrayListOf<Section>()
         for(course in courses){
@@ -351,7 +438,6 @@ if (rec.grade==grade){
 
             }
     }
-
     override suspend fun addPermission(permission: Permission, result: (Resource<String>) -> Unit) {
         val document=database.collection(PermissionsRequired.sing_in_permission).document()
         permission.permissionId=document.id

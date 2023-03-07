@@ -42,15 +42,25 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.114" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recy_test_dat"
+    <EditText
+        android:id="@+id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/log_in"
-        app:layout_constraintVertical_bias="0.092"
-        tools:layout_editor_absoluteX="-16dp" />
+        app:layout_constraintVertical_bias="0.212"
+        tools:layout_editor_absoluteX="16dp" />
 
+    <Button
+        android:id="@+id/bt_attend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="attend"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editText"
+        app:layout_constraintVertical_bias="0.221" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
