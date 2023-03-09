@@ -8,6 +8,8 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -17,7 +19,8 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-object RepoModule {
+object
+RepoModule {
 
     @Provides
     @Singleton
@@ -28,6 +31,13 @@ object RepoModule {
         return FirebaseRepoImp(database)//,roomRepository)
     }
 
+    @Provides
+    @Singleton
+    fun provideFireStorageRepo(
+        database:StorageReference,
+    ):FireStorageRepo {
+        return FireStorageRepoImp(database)
+    }
 
 
     @Provides

@@ -8,6 +8,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,6 +25,12 @@ object FirebaseModule {
 fun provideFireStoreInstant():FirebaseFirestore{
     return FirebaseFirestore.getInstance()
 }
+
+    @Provides
+    @Singleton
+    fun provideFireStorageInstant(): StorageReference {
+        return FirebaseStorage.getInstance().reference
+    }
 
 
 

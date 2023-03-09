@@ -22,6 +22,7 @@ import com.bemo.graduationproject.ui.adminPakage.AdminHomeScreen
 import com.bemo.graduationproject.ui.teachingPakage.TeachingHomeScreen
 import com.bemo.graduationproject.ui.userPakage.HomeScreen
 import com.bemo.graduationproject.viewModel.AuthViewModel
+import com.bemo.graduationproject.viewModel.FireStorageViewModel
 import com.bemo.graduationproject.viewModel.FirebaseViewModel
 import com.example.uni.data.Resource
 import com.google.firebase.auth.FirebaseAuth
@@ -35,6 +36,7 @@ import kotlinx.coroutines.flow.collectLatest
 @AndroidEntryPoint
 class SignUp : AppCompatActivity() {
     private val viewModel :AuthViewModel by viewModels()
+    private val fireStorageViewModel :FireStorageViewModel by viewModels()
     private val firebaseViewModel :FirebaseViewModel by viewModels()
 
 
@@ -103,7 +105,9 @@ binding.signUpBt.setOnClickListener {
                                 if (userId !=null){
                                    firebaseViewModel.addPermission(Permission(PermissionsRequired.sing_in_permission,userId,""))
                                     observe()
-                                    FirebaseStorageManager().uploadImage(this@SignUp,userImageUri, userId)
+                                    //FirebaseStorageManager().uploadImage(this@SignUp,userImageUri, userId)
+                                    fireStorageViewModel.addUri(userId,userImageUri)
+                                    observeUploadedImage()
                                 }
 
                                 startActivity(Intent(this@SignUp, HomeScreen::class.java))
@@ -131,7 +135,27 @@ binding.signUpBt.setOnClickListener {
     }
 }
     }
-private fun pickImageFromGallery(){
+
+    private fun observeUploadedImage() {
+        lifecycleScope.launchWhenCreated {
+        fireStorageViewModel.addUri.collectLatest {
+            when (it) {
+                is Resource.Loading -> {
+                }
+                is Resource.Success -> {
+                    Toast.makeText(this@SignUp,it.result,Toast.LENGTH_LONG).show()
+
+                }
+                is Resource.Failure -> {
+
+                    Toast.makeText(this@SignUp,it.exception.toString(),Toast.LENGTH_LONG).show()
+                }
+            }
+
+        }
+    }}
+
+    private fun pickImageFromGallery(){
     val intent = Intent (Intent.ACTION_PICK)
     intent.type = "image/*"
     startActivityForResult(intent, IMAGE_REQUEST_CODE)
